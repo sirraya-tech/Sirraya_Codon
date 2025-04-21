@@ -36,6 +36,25 @@ function parseNLPToCodonInput(text, userId, sdk) {
     }
   }
 
+  // Check if the user is asking to open a terminal window
+  const isTerminalOpen = doc.has("open terminal") || doc.has("run command");
+  if (isTerminalOpen) {
+    intent = "open_terminal";
+
+    // Using global regex for 'run command' and extracting the command
+    const commandRegex = /run command (.+)/i; // 'run command' followed by any text
+    const commandMatch = text.match(commandRegex);  // Matching the user input to extract the command
+
+    if (commandMatch && commandMatch[1]) {
+      payload.command = [commandMatch[1]];  // Extracting the command from the match
+    } else {
+      // If no specific command is provided, fallback to a default command
+      payload.command = ["echo Hello, World!"];
+    }
+  }
+
+  // Add more intents here as needed (e.g., opening a file, sending a message, etc.)
+
   if (!intent) {
     throw new Error("Could not determine intent from input.");
   }
@@ -104,7 +123,7 @@ rl.on("line", async (line) => {
 
   try {
     // Parsing the input with NLP for better flexibility
-    const codon = parseNLPToCodonInput(input, userId, sdk);
+    const codon = await parseNLPToCodonInput(input, userId, sdk);
     console.log(chalk.green("🧬 Codon Created:"));
     console.log(chalk.white(JSON.stringify(codon, null, 2)));
     await handleCodon(codon, getUserSecret);
