@@ -1,6 +1,30 @@
 import { CodonSdk } from "../src/sdk/codonSdk.js";
 import { handleCodon } from "../src/handlers/intentHandler.js";
 
+// Basic NLP parser (can be improved with actual NLP model later)
+function parseNLPToCodonInput(text, userId, sdk) {
+  let intent = null;
+  let payload = {};
+
+  if (text.toLowerCase().includes("open browser")) {
+    intent = "open_browser";
+
+    const urlMatch = text.match(/(?:https?:\/\/)?(www\.[^\s]+)/);
+    if (urlMatch) {
+      const rawUrl = urlMatch[0];
+      payload.url = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
+    } else {
+      payload.url = "https://default.example.com";
+    }
+  }
+
+  if (!intent) {
+    throw new Error("Could not determine intent from input");
+  }
+
+  return sdk.createCodon(intent, payload, {}, userId);
+}
+
 function getUserSecret(userId) {
   const secrets = {
     owner123: "super_secret_for_owner123",
@@ -15,16 +39,17 @@ function getUserSecret(userId) {
   return secrets[userId];
 }
 
+// Initialize SDK
 const sdk = new CodonSdk(getUserSecret);
 
-// ✅ Owner creates a codon with payload including URL
-const validCodonOwner123 = sdk.createCodon(
-  "open_browser",
-  { url: "https://chat.openai.com" }, // 👈 payload includes the URL
-  {},
-  "owner123"
-);
+// 🧠 Simulate user input in plain English
+const userInput = "open browser with website www.facebook.com";
+const userId = "owner123";
 
-// Simulate usage
-console.log("🔓 Owner 123 Attempt:");
-await handleCodon(validCodonOwner123, getUserSecret);
+try {
+  const codon = parseNLPToCodonInput(userInput, userId, sdk);
+  console.log("🔓 NLP-based Intent Execution:");
+  await handleCodon(codon, getUserSecret);
+} catch (err) {
+  console.error("❌ Failed to process NLP input:", err.message);
+}
