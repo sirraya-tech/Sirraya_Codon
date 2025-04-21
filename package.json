@@ -4,7 +4,8 @@
   "description": "Sirraya Codon SDK",
   "main": "src/index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "codon": "node cli/codoncli.js"  
   },
   "devDependencies": {
     "jest": "^27.0.6"
