@@ -5,15 +5,17 @@
   "main": "src/index.js",
   "scripts": {
     "test": "jest",
-    "codon": "node cli/codoncli.js"  
+    "codon": "node cli/codoncli.js"
   },
   "devDependencies": {
     "jest": "^27.0.6"
   },
   "type": "module",
   "dependencies": {
+    "chalk": "^5.4.1",
     "compromise": "^14.14.4",
     "crypto": "^1.0.1",
+    "figlet": "^1.8.1",
     "open": "^10.1.1",
     "systeminformation": "^5.25.11"
   }
