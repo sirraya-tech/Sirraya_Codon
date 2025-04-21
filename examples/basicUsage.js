@@ -1,7 +1,6 @@
 import { CodonSdk } from "../src/sdk/codonSdk.js";
 import { handleCodon } from "../src/handlers/intentHandler.js";
 
-// Basic NLP parser (can be improved with actual NLP model later)
 function parseNLPToCodonInput(text, userId, sdk) {
   let intent = null;
   let payload = {};
@@ -9,12 +8,19 @@ function parseNLPToCodonInput(text, userId, sdk) {
   if (text.toLowerCase().includes("open browser")) {
     intent = "open_browser";
 
-    const urlMatch = text.match(/(?:https?:\/\/)?(www\.[^\s]+)/);
-    if (urlMatch) {
-      const rawUrl = urlMatch[0];
-      payload.url = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
+    // ✅ Match domains like www.google.com, google.com, https://google.com, etc.
+    const urlRegex = /(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,})(?:\/[^\s]*)?/g;
+
+    const matches = [...text.matchAll(urlRegex)];
+    const urls = matches.map(match => {
+      const domain = match[0];
+      return domain.startsWith("http") ? domain : `https://${domain}`;
+    });
+
+    if (urls.length > 0) {
+      payload.url = urls;
     } else {
-      payload.url = "https://default.example.com";
+      payload.url = ["https://default.example.com"];
     }
   }
 
@@ -25,6 +31,8 @@ function parseNLPToCodonInput(text, userId, sdk) {
   return sdk.createCodon(intent, payload, {}, userId);
 }
 
+
+// 🔐 Secrets
 function getUserSecret(userId) {
   const secrets = {
     owner123: "super_secret_for_owner123",
@@ -39,11 +47,9 @@ function getUserSecret(userId) {
   return secrets[userId];
 }
 
-// Initialize SDK
+// 🚀 Main Simulation
 const sdk = new CodonSdk(getUserSecret);
-
-// 🧠 Simulate user input in plain English
-const userInput = "open browser with website www.facebook.com";
+const userInput = "open browser with websites www.amazon.com ";
 const userId = "owner123";
 
 try {
