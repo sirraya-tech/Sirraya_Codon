@@ -1,37 +1,23 @@
 import { generateTelomere } from '../telomere/telomereGenerator.js';
 import { parseCodonText } from '../core/codonParser.js';
-
-// Define a simple map of user input to intents
-const intentMap = {
-  "open camera": "open_camera",
-  "turn on flash": "turn_on_flash",
-  "play music": "play_music",
-  // Add more intent mappings as needed
-};
+import { getIntentData } from '../registry/intentRegistry.js';  // Import the intent registry
 
 export class CodonSdk {
   // New method to parse user input
   parseUserInput(userInput) {
-    // Convert user input to lowercase and match it to an intent
-    const cleanedInput = userInput.toLowerCase().trim();
-    const intent = intentMap[cleanedInput];
+    // Get the intent data from the registry
+    const { intent, payload, meta } = getIntentData(userInput);
 
-    if (!intent) {
-      throw new Error(`Intent not recognized for input: "${userInput}"`);
-    }
-
-    // Create codon with the matched intent
-    return this.createCodon(intent);
+    // Create codon with the intent data
+    return this.createCodon(intent, payload, meta);
   }
 
   // Method to create a codon
-  createCodon(intent, payload = {}) {
-    const meta = {
-      class: "DeviceCodon",
-      expires_in: 30,
-    };
-
+  createCodon(intent, payload = {}, meta = {}) {
+    // Generate the telomere from the intent + payload
     const telomere = generateTelomere(intent + JSON.stringify(payload));
+
+    // Build the codon structure
     const codonText = `${telomere}::${intent}::${JSON.stringify(payload)}::${JSON.stringify(meta)}`;
     return this.parseCodon(codonText);
   }
