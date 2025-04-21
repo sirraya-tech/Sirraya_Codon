@@ -1,4 +1,5 @@
 import { verifySignature } from '../utils/cryptoUtils.js';
+import open from 'open';
 
 // List of authorized owners
 const OWNER_IDS = ["owner123", "owner456", "owner789"]; // Add more owners here
@@ -34,10 +35,15 @@ export function handleCodon(codon, getUserSecret) {
     return;
   }
 
-  // Handle the intent
-  if (intent === "open_camera") {
-    console.log(`📷 Camera is now opened for user ${userId}.`);
+  // Simulated intent handler
+async function handleIntent(intent, userId) {
+  if (intent === "open_browser") {
+    console.log(`🌐 Opening browser for user ${userId}...`);
+    await open('https://www.example.com'); // Or any context-specific URL
   } else {
     console.log(`❓ Unknown intent: ${intent}.`);
   }
+}
+handleIntent("open_browser", "user123");
+
 }

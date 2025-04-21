@@ -21,15 +21,13 @@ function getUserSecret(userId) {
 const sdk = new CodonSdk(getUserSecret);
 
 // ✅ Owner 1 generates a valid codon with their correct secret (owner123)
-const validCodonOwner123 = sdk.createCodon("open_camera", {}, {}, "owner123");
+const validCodonOwner123 = sdk.createCodon("open_browser", {}, {}, "owner123");
 
-// ✅ Owner 2 generates a valid codon with their correct secret (owner456)
-const validCodonOwner456 = sdk.createCodon("open_camera", {}, {}, "owner456");
+
 
 // Simulate both owners trying to execute the same codon at the same time
 console.log("🔓 Owner 123 Attempt (Simultaneous):");
 handleCodon(validCodonOwner123, getUserSecret); // ✅ This should pass
 
-console.log("\n🔓 Owner 456 Attempt (Simultaneous):");
-handleCodon(validCodonOwner456, getUserSecret); // ✅ This should also pass
+
 
