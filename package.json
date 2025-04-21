@@ -1,0 +1,16 @@
+{
+  "name": "sirraya-codon-sdk",
+  "version": "1.0.0",
+  "description": "Sirraya Codon SDK",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^27.0.6"
+  },
+  "type": "module",
+  "dependencies": {
+    "crypto": "^1.0.1"
+  }
+}
