@@ -11,6 +11,7 @@
   },
   "type": "module",
   "dependencies": {
+    "compromise": "^14.14.4",
     "crypto": "^1.0.1",
     "open": "^10.1.1",
     "systeminformation": "^5.25.11"

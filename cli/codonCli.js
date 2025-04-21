@@ -3,16 +3,22 @@
 import readline from "readline";
 import { CodonSdk } from "../src/sdk/codonSdk.js";
 import { handleCodon } from "../src/handlers/intentHandler.js";
+import nlp from "compromise";  // Importing NLP library
 
-// Function to parse user input and generate codon
+// Function to parse user input with NLP
 function parseNLPToCodonInput(text, userId, sdk) {
   let intent = null;
   let payload = {};
 
-  if (text.toLowerCase().includes("open browser")) {
+  // Use NLP to recognize the intent and extract entities
+  const doc = nlp(text);
+
+  // Check if the user is asking to open a browser
+  const isBrowserOpen = doc.has("open browser") || doc.has("browse");
+  if (isBrowserOpen) {
     intent = "open_browser";
 
-    // ✅ Match domains like www.google.com, google.com, https://google.com, etc.
+    // Try to detect URLs in the text (handle short forms and mispellings)
     const urlRegex = /(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,})(?:\/[^\s]*)?/g;
     const matches = [...text.matchAll(urlRegex)];
     const urls = matches.map(match => {
@@ -23,12 +29,13 @@ function parseNLPToCodonInput(text, userId, sdk) {
     if (urls.length > 0) {
       payload.url = urls;
     } else {
+      // If no URLs found, use a default fallback URL
       payload.url = ["https://default.example.com"];
     }
   }
 
   if (!intent) {
-    throw new Error("Could not determine intent from input");
+    throw new Error("Could not determine intent from input.");
   }
 
   return sdk.createCodon(intent, payload, {}, userId);
@@ -76,6 +83,7 @@ rl.on("line", async (line) => {
   }
 
   try {
+    // Parsing the input with NLP for better flexibility
     const codon = parseNLPToCodonInput(input, userId, sdk);
     console.log("🧬 Codon Created:");
     console.log(JSON.stringify(codon, null, 2));
