@@ -4,33 +4,32 @@ import { handleCodon } from "../src/handlers/intentHandler.js";
 // Define user secrets
 function getUserSecret(userId) {
   const secrets = {
-    owner123: "super_secret_for_owner",
-    hacker999: "super_secret_for_hacker"
+    owner123: "super_secret_for_owner123",
+    owner456: "super_secret_for_owner456"
   };
+  
+  // Safe fallback: if the userId doesn't exist, return a default value or log the error
+  if (!secrets[userId]) {
+    console.log(`❌ No secret found for user ${userId}. Using fallback secret.`);
+    return "fallback_secret_for_unknown_user";  // A fallback secret
+  }
+  
   return secrets[userId];
 }
 
 // Initialize SDK
 const sdk = new CodonSdk(getUserSecret);
 
-// ✅ Owner generates a valid codon with their correct secret
-const validCodon = sdk.createCodon("open_camera", {}, {}, "owner123");
+// ✅ Owner 1 generates a valid codon with their correct secret (owner123)
+const validCodonOwner123 = sdk.createCodon("open_camera", {}, {}, "owner123");
 
-// ❌ Hacker tries to forge a codon pretending to be 'owner123'
-const forgedCodonByHacker = {
-  intent: "open_camera",
-  payload: {},
-  meta: {
-    identity: {
-      userId: "owner123",
-      signature: "fake_signature_here" // hacker doesn't know the real secret
-    }
-  }
-};
+// ✅ Owner 2 generates a valid codon with their correct secret (owner456)
+const validCodonOwner456 = sdk.createCodon("open_camera", {}, {}, "owner456");
 
-// Simulate usage
-console.log("🔓 Owner Attempt:");
-handleCodon(validCodon, getUserSecret); // ✅ pass getUserSecret here
+// Simulate both owners trying to execute the same codon at the same time
+console.log("🔓 Owner 123 Attempt (Simultaneous):");
+handleCodon(validCodonOwner123, getUserSecret); // ✅ This should pass
 
-console.log("\n🕵️ Hacker Attempt:");
-handleCodon(forgedCodonByHacker, getUserSecret); // ✅ pass getUserSecret here
+console.log("\n🔓 Owner 456 Attempt (Simultaneous):");
+handleCodon(validCodonOwner456, getUserSecret); // ✅ This should also pass
+
