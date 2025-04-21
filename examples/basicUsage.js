@@ -1,29 +1,36 @@
 import { CodonSdk } from "../src/sdk/codonSdk.js";
 import { handleCodon } from "../src/handlers/intentHandler.js";
 
-// Define the method to get a user's secret key (mocked for this example)
+// Define user secrets
 function getUserSecret(userId) {
-  // For demonstration purposes, let's assume each user has a unique secret
   const secrets = {
     owner123: "super_secret_for_owner",
     hacker999: "super_secret_for_hacker"
   };
-
   return secrets[userId];
 }
 
-// Initialize the Codon SDK
+// Initialize SDK
 const sdk = new CodonSdk(getUserSecret);
 
-// Generate a valid codon for the owner
+// ✅ Owner generates a valid codon with their correct secret
 const validCodon = sdk.createCodon("open_camera", {}, {}, "owner123");
 
-// Generate an invalid codon for the hacker
-const invalidCodon = sdk.createCodon("open_camera", {}, {}, "hacker999");
+// ❌ Hacker tries to forge a codon pretending to be 'owner123'
+const forgedCodonByHacker = {
+  intent: "open_camera",
+  payload: {},
+  meta: {
+    identity: {
+      userId: "owner123",
+      signature: "fake_signature_here" // hacker doesn't know the real secret
+    }
+  }
+};
 
-// Simulate handling the valid and invalid codons
+// Simulate usage
 console.log("🔓 Owner Attempt:");
-handleCodon(validCodon);  // Should allow the camera to be opened
+handleCodon(validCodon, getUserSecret); // ✅ pass getUserSecret here
 
 console.log("\n🕵️ Hacker Attempt:");
-handleCodon(invalidCodon);  // Should reject with Unauthorized access
+handleCodon(forgedCodonByHacker, getUserSecret); // ✅ pass getUserSecret here
