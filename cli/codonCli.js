@@ -6,6 +6,8 @@ import { handleCodon } from "../src/handlers/intentHandler.js";
 import { parseNLPToCodonInput } from "../src/utils/nlpParser.js"; // Importing the new NLP parser module
 import chalk from "chalk"; // Importing chalk for color styling
 import figlet from "figlet"; // Importing figlet for large ASCII logo
+import fs from "fs";
+import path from "path";
 
 // 🔐 Secrets
 function getUserSecret(userId) {
@@ -63,7 +65,7 @@ function showMenu() {
   Please choose an option:
   1. Run Intent (Existing Functionality)
   2. Create Codon (For future use, not functional yet)
-  3. View Documentation (Dummy option)
+  3. View Documentation (View detailed documentation)
   4. Exit
   `;
   
@@ -100,12 +102,15 @@ rl.on("line", async (line) => {
       break;
 
     case "3":
-      // Show dummy documentation (You can replace this with real documentation logic later)
-      console.log(chalk.cyan("\n📚 Here is your dummy documentation:\n"));
-      console.log(chalk.white("Documentation Placeholder:"));
-      console.log("1. Intent 1: Description of Intent 1");
-      console.log("2. Intent 2: Description of Intent 2");
-      console.log("3. Intent 3: Description of Intent 3");
+      // Show actual documentation from markdown file
+      console.log(chalk.cyan("\n📚 Here is your detailed documentation:\n"));
+      try {
+        const docPath = path.resolve("docs/sirraya-codon-docs.md"); // Path to your documentation file
+        const docsContent = fs.readFileSync(docPath, "utf-8"); // Read the file synchronously
+        console.log(chalk.white(docsContent)); // Display the documentation
+      } catch (err) {
+        console.error(chalk.red("❌ Failed to load documentation:"), err.message);
+      }
       showMenu(); // Show the menu again after displaying documentation
       break;
 
