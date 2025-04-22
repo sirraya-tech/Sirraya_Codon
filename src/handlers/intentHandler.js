@@ -1,6 +1,6 @@
 // handleCodon.js
 import { verifySignature } from '../utils/cryptoUtils.js';
-import { intentHandlers } from './intents/index.js';
+import { intentHandlers } from './intents/index.js';  // Importing from main index.js
 
 const AUTHORIZED_USERS = ["owner123", "owner456"];
 
@@ -28,8 +28,10 @@ export async function handleCodon(codon, getUserSecret) {
 
   const handler = intentHandlers[intent];
   if (handler) {
+    console.log(`Executing intent handler for: ${intent}`);
     await handler(payload);
   } else {
     console.log(`❓ Unknown or unsupported intent: ${intent}`);
+    console.log(`Available intents:`, Object.keys(intentHandlers)); // Log available intents for debugging
   }
 }

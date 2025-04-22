@@ -1,9 +1,8 @@
-// intents/index.js
-import { handleOpenBrowser } from './open_browser.js';
-import { handleOpenTerminal } from './open_terminal.js';
+// src/handlers/intents/index.js
+import * as systemIntents from './system/index.js';  // Import all system intent handlers
 
-// Map each intent to its handler function
+// Map each intent string to its handler function
 export const intentHandlers = {
-  open_browser: handleOpenBrowser,
-  open_terminal: handleOpenTerminal,
+  open_browser: systemIntents.handleOpenBrowser,
+  open_terminal: systemIntents.handleOpenTerminal,
 };
