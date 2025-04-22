@@ -1,7 +1,6 @@
 // handleCodon.js
 import { verifySignature } from '../utils/cryptoUtils.js';
-import { handleOpenBrowser } from './intents/open_browser.js';
-import { handleOpenTerminal } from './intents/open_terminal.js';
+import { intentHandlers } from './intents/index.js';
 
 const AUTHORIZED_USERS = ["owner123", "owner456"];
 
@@ -27,12 +26,10 @@ export async function handleCodon(codon, getUserSecret) {
     return;
   }
 
-  // Intent Routing
-  if (intent === "open_browser") {
-    await handleOpenBrowser(payload);
-  } else if (intent === "open_terminal") {
-    handleOpenTerminal(payload);
+  const handler = intentHandlers[intent];
+  if (handler) {
+    await handler(payload);
   } else {
-    console.log(`❓ Unknown intent: ${intent}.`);
+    console.log(`❓ Unknown or unsupported intent: ${intent}`);
   }
 }
