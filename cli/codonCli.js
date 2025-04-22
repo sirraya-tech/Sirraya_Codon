@@ -3,8 +3,8 @@
 import readline from "readline";
 import { CodonSdk } from "../src/sdk/codonSdk.js";
 import { handleCodon } from "../src/handlers/intentHandler.js";
-import { parseNLPToCodonInput } from "../src/utils/nlpParser.js";  // Importing the new NLP parser module
-import chalk from "chalk";  // Importing chalk for color styling
+import { parseNLPToCodonInput } from "../src/utils/nlpParser.js"; // Importing the new NLP parser module
+import chalk from "chalk"; // Importing chalk for color styling
 import figlet from "figlet"; // Importing figlet for large ASCII logo
 
 // 🔐 Secrets
@@ -51,30 +51,72 @@ figlet('Sirraya Codon', (err, data) => {
   const footer = chalk.cyan("🌐 Developed by Amir Hameed Mir");
 
   // Print logo with padding and centered text
-  console.log(paddingTopBottom + paddingLeftRight + logo + '\n' + paddingLeftRight  + '\n' + footer + paddingTopBottom);
-  
-  // Now, show the CLI prompt after logo and text are printed
-  rl.prompt();  // Display the prompt after the branding text
+  console.log(paddingTopBottom + paddingLeftRight + logo + '\n' + paddingLeftRight + '\n' + footer + paddingTopBottom);
+
+  // Now, show the menu and prompt after logo and text are printed
+  showMenu(); // Show the menu after the logo
 });
 
+// Show Menu Function
+function showMenu() {
+  const menuOptions = `
+  Please choose an option:
+  1. Run Intent (Existing Functionality)
+  2. Create Codon (For future use, not functional yet)
+  3. View Documentation (Dummy option)
+  4. Exit
+  `;
+  
+  console.log(menuOptions);
+  rl.prompt();
+}
+
+// Handle user input for menu options
 rl.on("line", async (line) => {
   const input = line.trim();
 
-  if (input.toLowerCase() === "exit") {
-    console.log(chalk.red("👋 Goodbye."));
-    rl.close();
-    return;
-  }
+  switch (input) {
+    case "1":
+      // Run Intent
+      console.log(chalk.yellow("\n🔧 Proceeding with Intent execution..."));
+      rl.question("Enter the intent in plain text: ", async (intentText) => {
+        try {
+          // Parsing the plain text intent to Codon input format
+          const codon = await parseNLPToCodonInput(intentText, userId, sdk);
+          console.log(chalk.green("🧬 Intent Executed:"));
+          //console.log(chalk.white(JSON.stringify(codon, null, 2)));
+          await handleCodon(codon, getUserSecret); // Run the intent
+        } catch (err) {
+          console.error(chalk.red("❌ Error executing intent:"), chalk.white(err.message));
+        }
+        showMenu(); // Show the menu again after processing
+      });
+      break;
+    
+    case "2":
+      // Create Codon (Placeholder for future use)
+      console.log(chalk.cyan("\n🔨 Codon creation is not implemented yet, but you can expect this feature soon."));
+      showMenu(); // Show the menu again after displaying the placeholder message
+      break;
 
-  try {
-    // Parsing the input with NLP for better flexibility
-    const codon = await parseNLPToCodonInput(input, userId, sdk);
-    console.log(chalk.green("🧬 Codon Created:"));
-    console.log(chalk.white(JSON.stringify(codon, null, 2)));
-    await handleCodon(codon, getUserSecret);
-  } catch (err) {
-    console.error(chalk.red("❌ Error handling codon:"), chalk.white(err.message));
-  }
+    case "3":
+      // Show dummy documentation (You can replace this with real documentation logic later)
+      console.log(chalk.cyan("\n📚 Here is your dummy documentation:\n"));
+      console.log(chalk.white("Documentation Placeholder:"));
+      console.log("1. Intent 1: Description of Intent 1");
+      console.log("2. Intent 2: Description of Intent 2");
+      console.log("3. Intent 3: Description of Intent 3");
+      showMenu(); // Show the menu again after displaying documentation
+      break;
 
-  rl.prompt();
+    case "4":
+      console.log(chalk.red("👋 Goodbye."));
+      rl.close();
+      break;
+
+    default:
+      console.log(chalk.red("❌ Invalid option, please choose again."));
+      showMenu();
+      break;
+  }
 });

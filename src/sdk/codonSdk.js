@@ -50,7 +50,7 @@ export class CodonSdk {
   // Parse and display the full codon structure (for debugging/logging)
   parseCodon(codonText) {
     const codon = parseCodonText(codonText);
-    console.log("📦 Full Parsed Codon with Context Info:", JSON.stringify(codon, null, 2));
+    //console.log("📦 Full Parsed Codon with Context Info:", JSON.stringify(codon, null, 2));
     return codon;
   }
 }
