@@ -1,6 +1,6 @@
 {
   "name": "sirraya-codon",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Sirraya Codon is a programmable, intent-based platform that is user and context agnostic. Built on the Sirraya Intent Resolution Protocol (SIRP) and Codon Spec 1, it enables seamless automation and integration across devices and environments. With a modular architecture, it allows developers to easily add new intents and handlers to automate actions and tasks through natural language or programmatic input.",
   "main": "src/index.js",
   "scripts": {
