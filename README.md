@@ -283,7 +283,7 @@ try {
 
 ## License
 
-[Add your license information here]
+
 
 ## Support
 
