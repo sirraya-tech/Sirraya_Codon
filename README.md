@@ -1,81 +1,33 @@
-# Codon SDK - Secure AI Agent Communication Framework
+# Codon SDK
+
+A secure messaging framework for AI agent communication with cryptographic authentication and structured command patterns.
 
 ## Overview
 
-The Codon SDK is a sophisticated, secure messaging system designed specifically for AI agents. It provides cryptographic authentication, context awareness, and structured communication patterns that enable safe deployment of AI agents in multi-user, multi-tenant environments.
+The Codon SDK enables secure communication between AI agents through cryptographically signed messages. Each message follows a structured format that ensures authenticity, prevents replay attacks, and provides full audit trails.
 
-## Architecture
+## Installation
 
-### Core Concept: The Codon Structure
+```bash
+npm install codon-sdk
 ```
-telomere::intent::payload::metadata
-```
 
-Each codon is a secure, structured message containing:
-- **Telomere**: Cryptographic signature ensuring authenticity
-- **Intent**: The action or command being requested  
-- **Payload**: Data associated with the intent
-- **Metadata**: Context, identity, and execution parameters
+## Quick Start
 
-## Key Features
-
-### 🔐 Security-First Design
-- User-specific cryptographic signatures
-- Message integrity verification
-- Identity binding and validation
-- Replay attack protection via expiration
-
-### 🧠 AI-Optimized Communication
-- Intent-based command structure
-- Natural language → structured command translation
-- Context-aware execution
-- Multi-agent coordination support
-
-### 📊 Observability & Auditability
-- Full provenance tracking
-- Cryptographic audit trails
-- Comprehensive logging
-- Debug-friendly codon parsing
-
-## API Reference
-
-### Constructor
 ```javascript
+import { CodonSdk } from 'codon-sdk';
+
+const getUserSecret = async (userId) => {
+  // Your secret retrieval logic
+  return await database.getUserSecret(userId);
+};
+
 const sdk = new CodonSdk(getUserSecret);
-```
 
-**Parameters:**
-- `getUserSecret`: Function that retrieves user's private secret from storage
-
-### Methods
-
-#### `parseUserInput(userInput, userId)`
-Parses natural language input into a structured codon.
-
-**Parameters:**
-- `userInput` (string): Natural language command from user
-- `userId` (string): Unique identifier for the user
-
-**Returns:** Parsed codon object
-
-**Example:**
-```javascript
+// Parse natural language input
 const codon = sdk.parseUserInput("Turn on bedroom lights", "user123");
-```
 
-#### `createCodon(intent, payload, meta, userId)`
-Creates a secure codon with cryptographic verification.
-
-**Parameters:**
-- `intent` (string): The action to be performed
-- `payload` (object): Data for the intent (default: `{}`)
-- `meta` (object): Additional metadata (default: `{}`)
-- `userId` (string): User identifier (default: `'anonymous'`)
-
-**Returns:** Parsed codon object
-
-**Example:**
-```javascript
+// Create structured codon
 const codon = sdk.createCodon(
   "device.control",
   { device: "bedroom_lights", action: "on" },
@@ -84,145 +36,173 @@ const codon = sdk.createCodon(
 );
 ```
 
-#### `parseCodon(codonText)`
-Parses a codon string into its structured components.
+## Message Structure
+
+Each codon follows this format:
+```
+telomere::intent::payload::metadata
+```
+
+- **telomere**: Cryptographic signature for authentication
+- **intent**: Action or command identifier
+- **payload**: Command data (JSON)
+- **metadata**: Context and execution parameters
+
+## API Reference
+
+### Constructor
+
+```javascript
+new CodonSdk(getUserSecret)
+```
 
 **Parameters:**
-- `codonText` (string): The full codon string
+- `getUserSecret` (Function): Returns user's private secret for cryptographic operations
+
+### Methods
+
+#### parseUserInput(userInput, userId)
+
+Converts natural language to structured codon.
+
+**Parameters:**
+- `userInput` (string): User's natural language command
+- `userId` (string): User identifier
 
 **Returns:** Parsed codon object
 
-## Dependencies
-
-The SDK relies on several utility modules:
-
-### Required Imports
+**Example:**
 ```javascript
-import { generateTelomereWithUser, verifySignature } from '../utils/cryptoUtils.js';
-import { parseCodonText } from '../core/codonParser.js';
-import { getIntentData } from '../registry/intentRegistry.js';
-import { detectContext } from '../context/contextDetector.js';
+const codon = sdk.parseUserInput("Schedule meeting tomorrow at 2pm", "user123");
 ```
 
-### Utility Modules to Implement
+#### createCodon(intent, payload, meta, userId)
 
-#### `cryptoUtils.js`
-- `generateTelomereWithUser(intent, payload, userId, secret)`: Generate secure telomere
-- `verifySignature(intent, payload, userId, signature, secret)`: Verify message authenticity
+Creates cryptographically signed codon.
 
-#### `codonParser.js`
-- `parseCodonText(codonText)`: Parse codon string into structured object
+**Parameters:**
+- `intent` (string): Action identifier
+- `payload` (object): Command data (default: `{}`)
+- `meta` (object): Additional metadata (default: `{}`)
+- `userId` (string): User identifier (default: `'anonymous'`)
 
-#### `intentRegistry.js`
-- `getIntentData(userInput)`: Extract intent, payload, and metadata from natural language
+**Returns:** Parsed codon object
 
-#### `contextDetector.js`
-- `detectContext()`: Capture environmental context (device, location, time, etc.)
-
-## Implementation Guide
-
-### 1. Setup and Initialization
-
-```javascript
-import { CodonSdk } from './codon-sdk.js';
-
-// Initialize with user secret retrieval function
-const getUserSecret = async (userId) => {
-  // Implement your secret storage logic
-  return await database.getUserSecret(userId);
-};
-
-const sdk = new CodonSdk(getUserSecret);
-```
-
-### 2. Processing User Commands
-
-```javascript
-try {
-  const codon = sdk.parseUserInput("Schedule meeting tomorrow at 2pm", "user123");
-  console.log("Generated codon:", codon);
-} catch (error) {
-  console.error("Authentication failed:", error.message);
-}
-```
-
-### 3. Manual Codon Creation
-
+**Example:**
 ```javascript
 const codon = sdk.createCodon(
   "calendar.create",
+  { title: "Team Meeting", date: "2025-05-31", time: "14:00" },
+  { priority: "high" },
+  "user123"
+);
+```
+
+#### parseCodon(codonText)
+
+Parses codon string into structured object.
+
+**Parameters:**
+- `codonText` (string): Full codon string
+
+**Returns:** Parsed codon object
+
+## Security Model
+
+### Authentication Flow
+
+1. User provides input or creates codon
+2. System generates cryptographic signature using user's secret
+3. Signature verification occurs before execution
+4. Context and expiration metadata added automatically
+
+### Security Features
+
+- **Cryptographic Signatures**: Every codon must be cryptographically valid
+- **User Isolation**: Unique secrets prevent cross-user attacks
+- **Replay Protection**: Built-in expiration timestamps
+- **Audit Trail**: Full provenance tracking for all operations
+
+## Dependencies
+
+The SDK requires these utility modules:
+
+### cryptoUtils.js
+```javascript
+export function generateTelomereWithUser(intent, payload, userId, secret) {
+  // Generate secure cryptographic signature
+}
+
+export function verifySignature(intent, payload, userId, signature, secret) {
+  // Verify message authenticity
+}
+```
+
+### codonParser.js
+```javascript
+export function parseCodonText(codonText) {
+  // Parse codon string into structured object
+}
+```
+
+### intentRegistry.js
+```javascript
+export function getIntentData(userInput) {
+  // Extract intent, payload, and metadata from natural language
+}
+```
+
+### contextDetector.js
+```javascript
+export function detectContext() {
+  // Capture environmental context (device, location, time)
+}
+```
+
+## Usage Examples
+
+### Smart Home Control
+```javascript
+// Input: "Turn on living room lights"
+const codon = sdk.parseUserInput("Turn on living room lights", "user123");
+// Result:
+// {
+//   intent: "device.control",
+//   payload: { device: "living_room_lights", action: "on" },
+//   context: { location: "home", time: "evening" }
+// }
+```
+
+### Task Management
+```javascript
+// Input: "Remind me to call mom tomorrow"
+const codon = sdk.parseUserInput("Remind me to call mom tomorrow", "user123");
+// Result:
+// {
+//   intent: "reminder.create",
+//   payload: { message: "Call mom", date: "2025-05-31" },
+//   context: { device: "mobile", user_location: "office" }
+// }
+```
+
+### Agent Delegation
+```javascript
+const codon = sdk.createCodon(
+  "agent.delegate",
   { 
-    title: "Team Meeting",
-    date: "2025-05-31",
-    time: "14:00"
+    task: "data_analysis", 
+    target_agent: "analytics_bot", 
+    dataset: "sales_q1" 
   },
   { 
-    priority: "high",
-    reminder: "15min"
+    requesting_agent: "planning_bot", 
+    priority: "urgent" 
   },
   "user123"
 );
 ```
 
-## Use Cases
-
-### 🏠 Smart Home Control
-```javascript
-// "Turn on living room lights"
-intent: "device.control"
-payload: { device: "living_room_lights", action: "on" }
-context: { location: "home", time: "evening" }
-```
-
-### 📅 Personal Assistant Tasks
-```javascript
-// "Remind me to call mom tomorrow"
-intent: "reminder.create"
-payload: { message: "Call mom", date: "2025-05-31" }
-context: { device: "mobile", user_location: "office" }
-```
-
-### 🤖 Multi-Agent Coordination
-```javascript
-// Agent-to-agent task delegation
-intent: "agent.delegate"
-payload: { task: "data_analysis", target_agent: "analytics_bot", dataset: "sales_q1" }
-context: { requesting_agent: "planning_bot", priority: "urgent" }
-```
-
-### 🔒 Secure API Operations
-```javascript
-// "Transfer $100 to savings account"
-intent: "banking.transfer"
-payload: { amount: 100, from: "checking", to: "savings" }
-// Cryptographic verification ensures only authorized user can execute
-```
-
-## Security Considerations
-
-### Authentication Flow
-1. User provides natural language input
-2. System extracts intent and payload
-3. Cryptographic telomere generated using user's private secret
-4. Signature verification before execution
-5. Context and expiration metadata added
-
-### Security Features
-- **Signature Verification**: Every codon must be cryptographically valid
-- **User Isolation**: Each user has unique secrets, preventing cross-user attacks
-- **Temporal Security**: Built-in expiration prevents replay attacks
-- **Audit Trail**: All operations are logged with full provenance
-
-### Best Practices
-- Store user secrets securely (HSM, encrypted database)
-- Implement proper secret rotation
-- Use secure random number generation for signatures
-- Monitor for suspicious patterns in codon generation
-- Implement rate limiting to prevent abuse
-
 ## Error Handling
-
-The SDK throws errors for various security violations:
 
 ```javascript
 try {
@@ -232,67 +212,60 @@ try {
     // Handle authentication failure
     console.error("Signature verification failed");
   }
+  // Handle other errors
 }
 ```
 
-## Development Roadmap
+## Best Practices
 
-### Phase 1: Core Implementation
-- [ ] Implement cryptoUtils with robust signature generation
-- [ ] Build codonParser for reliable string parsing
-- [ ] Create intentRegistry with NLP capabilities
-- [ ] Develop contextDetector for environmental awareness
+### Security
+- Store user secrets securely (HSM, encrypted database)
+- Implement proper secret rotation
+- Use secure random number generation
+- Monitor for suspicious codon patterns
+- Implement rate limiting
 
-### Phase 2: Advanced Features
-- [ ] Add support for multi-agent conversations
-- [ ] Implement codon chaining for complex workflows
-- [ ] Add encryption for sensitive payloads
-- [ ] Build codon validation rules engine
+### Development
+- Always validate input before processing
+- Implement comprehensive error handling
+- Use TypeScript for better type safety
+- Write unit tests for all codon operations
+- Log all codon generation and verification events
 
-### Phase 3: Production Features
-- [ ] Add comprehensive logging and monitoring
-- [ ] Implement codon analytics and insights
-- [ ] Build admin tools for codon management
-- [ ] Add support for custom codon types
+## Implementation Checklist
 
-### Phase 4: Ecosystem Integration
-- [ ] Build integrations with popular AI frameworks
-- [ ] Create SDKs for multiple programming languages
-- [ ] Develop codon visualization tools
-- [ ] Add support for codon marketplaces
+Before using in production, implement:
+
+- [ ] Secure secret storage mechanism
+- [ ] Cryptographic signature generation and verification
+- [ ] Natural language processing for intent extraction
+- [ ] Context detection for environmental awareness
+- [ ] Codon parsing and validation
+- [ ] Error handling and logging
+- [ ] Rate limiting and abuse prevention
+- [ ] Unit and integration tests
+
+## Testing
+
+```bash
+# Run unit tests
+npm test
+
+# Run integration tests
+npm run test:integration
+
+# Run security tests
+npm run test:security
+```
 
 ## Contributing
 
-### Development Setup
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Run tests: `npm test`
-4. Start development server: `npm run dev`
-
-### Code Style
-- Use ESLint configuration provided
-- Follow async/await patterns for Promise handling
-- Include comprehensive JSDoc comments
-- Write unit tests for all new functionality
-
-### Testing Requirements
-- Unit tests for all public methods
-- Integration tests for codon flow
-- Security tests for cryptographic functions
-- Performance tests for high-load scenarios
+1. Fork the repository
+2. Create feature branch
+3. Add tests for new functionality
+4. Ensure all tests pass
+5. Submit pull request
 
 ## License
 
-
-
-## Support
-
-For questions, issues, or contributions:
-- Create GitHub issues for bugs
-- Use discussions for questions
-- Submit PRs for contributions
-- Join our Discord for real-time support
-
----
-
-*Built for the future of secure AI agent communication* 🤖🔐
+MIT License - see LICENSE file for details
